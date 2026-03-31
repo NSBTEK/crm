@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CRM Dashboard</title>
+  <style>
+    body { font-family: Arial; display: flex; }
+    #sidebar { width: 200px; background: #eee; padding: 10px; }
+    #content { flex: 1; padding: 20px; }
+    button { display:block; margin:5px 0; }
+  </style>
+</head>
+
+<body>
+
+<div id="sidebar">
+  <h3>Entities</h3>
+  <button onclick="load('candidates')">Candidates</button>
+  <button onclick="load('clients')">Clients</button>
+  <button onclick="load('activities')">Activities</button>
+  <button onclick="load('access_requests')">Access</button>
+</div>
+
+<div id="content">
+  <h2>Login</h2>
+  <input id="user" placeholder="username">
+  <input id="pass" type="password">
+  <button onclick="login()">Login</button>
+
+  <h2 id="title"></h2>
+  <input id="field1" placeholder="value">
+  <button onclick="add()">Add</button>
+
+  <ul id="list"></ul>
+</div>
+
+<script>
+let token = '';
+let current = '';
+
+async function login() {
+  const res = await fetch('/auth/login', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      username:user.value,
+      password:pass.value
+    })
+  });
+
+  const data = await res.json();
+  token = data.token;
+}
+
+async function load(entity) {
+  current = entity;
+  title.innerText = entity;
+
+  const res = await fetch('/api/' + entity);
+  const data = await res.json();
+
+  list.innerHTML = data.map(x =>
+    `<li>${JSON.stringify(x)}</li>`
+  ).join('');
+}
+
+async function add() {
+  const value = field1.value;
+
+  await fetch('/api/' + current, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name:value })
+  });
+
+  load(current);
+}
+</script>
+
+</body>
+</html>

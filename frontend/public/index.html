@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>CRM Dashboard</h1>
+
+<h2>Add Candidate</h2>
+<input id="name" placeholder="Name">
+<input id="status" placeholder="Status">
+<button onclick="addCandidate()">Add</button>
+
+<ul id="list"></ul>
+
+<script>
+async function load() {
+  const res = await fetch('/candidates');
+  const data = await res.json();
+
+  document.getElementById('list').innerHTML =
+    data.map(c => `<li>${c.name} - ${c.status}</li>`).join('');
+}
+
+async function addCandidate() {
+  await fetch('/candidates', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name: name.value,
+      status: status.value
+    })
+  });
+
+  load();
+}
+
+load();
+</script>
+
+</body>
+</html>
